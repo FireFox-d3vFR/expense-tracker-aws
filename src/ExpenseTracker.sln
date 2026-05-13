@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Api", "backe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Api.Tests", "backend\ExpenseTracker.Api.Tests\ExpenseTracker.Api.Tests.csproj", "{CB5BF83C-26C2-4FAA-A505-DD822EECC8A2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mobile", "mobile", "{E0FC68D3-40F2-542A-6A90-38B94336C1AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Maui", "mobile\ExpenseTracker.Maui\ExpenseTracker.Maui.csproj", "{2ACE674E-6C29-42F1-8766-8516FBCA23FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +47,18 @@ Global
 		{CB5BF83C-26C2-4FAA-A505-DD822EECC8A2}.Release|x64.Build.0 = Release|Any CPU
 		{CB5BF83C-26C2-4FAA-A505-DD822EECC8A2}.Release|x86.ActiveCfg = Release|Any CPU
 		{CB5BF83C-26C2-4FAA-A505-DD822EECC8A2}.Release|x86.Build.0 = Release|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Debug|x64.Build.0 = Debug|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Debug|x86.Build.0 = Debug|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Release|x64.ActiveCfg = Release|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Release|x64.Build.0 = Release|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Release|x86.ActiveCfg = Release|Any CPU
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +66,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{597D9B59-4FDC-4593-86E6-FB21434305B9} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
 		{CB5BF83C-26C2-4FAA-A505-DD822EECC8A2} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{2ACE674E-6C29-42F1-8766-8516FBCA23FE} = {E0FC68D3-40F2-542A-6A90-38B94336C1AE}
 	EndGlobalSection
 EndGlobal
