@@ -145,6 +145,25 @@ public sealed class DynamoExpenseRepositoryTests
         Assert.Null(item.GSI2SK);
     }
 
+    [Fact]
+    public void CreateAttachReceiptPutRequest_uses_employee_condition()
+    {
+        var item = DynamoExpenseMapper.ToItem(Expense(ExpenseStatus.Draft) with
+        {
+            ReceiptKey = "receipts/employee-1/expense-1/receipt.pdf"
+        });
+
+        var request = DynamoExpenseRepository.CreateAttachReceiptPutRequest(
+            "ExpenseReports",
+            item,
+            "employee-1");
+
+        Assert.Equal("ExpenseReports", request.TableName);
+        Assert.Equal("employeeId = :employeeId", request.ConditionExpression);
+        Assert.Equal("employee-1", request.ExpressionAttributeValues[":employeeId"].S);
+        Assert.Equal("receipts/employee-1/expense-1/receipt.pdf", request.Item["receiptKey"].S);
+    }
+
     private static ExpenseReport Expense(ExpenseStatus status) =>
         new(
             "expense-1",

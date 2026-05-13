@@ -3,9 +3,7 @@ namespace ExpenseTracker.Api.Infrastructure.S3;
 public interface IReceiptService
 {
     Task<PresignedReceiptUrl> CreateUploadUrlAsync(
-        string employeeId,
-        string expenseId,
-        string fileName,
+        string receiptKey,
         string? contentType,
         CancellationToken cancellationToken = default);
 

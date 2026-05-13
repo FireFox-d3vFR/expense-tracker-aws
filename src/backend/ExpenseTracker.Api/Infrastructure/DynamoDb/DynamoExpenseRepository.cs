@@ -169,13 +169,33 @@ public sealed class DynamoExpenseRepository : IExpenseRepository
         return reviewed;
     }
 
-    public Task<ExpenseReport> AttachReceiptAsync(
+    public async Task<ExpenseReport> AttachReceiptAsync(
         string expenseId,
         string employeeId,
         string receiptKey,
         DateTimeOffset updatedAt,
-        CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException("Receipt attachment DynamoDB update is outside this story.");
+        CancellationToken cancellationToken = default)
+    {
+        var current = await GetByIdAsync(expenseId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Expense '{expenseId}' was not found.");
+
+        if (!string.Equals(current.EmployeeId, employeeId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Only the owner can attach a receipt.");
+        }
+
+        var updated = current with
+        {
+            ReceiptKey = receiptKey,
+            UpdatedAt = updatedAt
+        };
+
+        await _dynamoDb.PutItemAsync(
+            CreateAttachReceiptPutRequest(_tableName, DynamoExpenseMapper.ToItem(updated), employeeId),
+            cancellationToken);
+
+        return updated;
+    }
 
     public static GetItemRequest CreateGetByIdRequest(string tableName, string expenseId) =>
         new()
@@ -236,6 +256,19 @@ public sealed class DynamoExpenseRepository : IExpenseRepository
             {
                 [":submitted"] = new() { S = ExpenseStatus.Submitted.ToString() },
                 [":resubmitted"] = new() { S = ExpenseStatus.Resubmitted.ToString() }
+            });
+
+    public static PutItemRequest CreateAttachReceiptPutRequest(
+        string tableName,
+        DynamoExpenseItem item,
+        string employeeId) =>
+        CreatePutRequest(
+            tableName,
+            item,
+            "employeeId = :employeeId",
+            expressionAttributeValues: new Dictionary<string, AttributeValue>
+            {
+                [":employeeId"] = new() { S = employeeId }
             });
 
     public static ExpenseReport ApplyReview(

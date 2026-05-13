@@ -3,6 +3,7 @@ using ExpenseTracker.Api.Domain;
 using ExpenseTracker.Api.Infrastructure;
 using ExpenseTracker.Api.Infrastructure.Auth;
 using ExpenseTracker.Api.Infrastructure.DynamoDb;
+using ExpenseTracker.Api.Infrastructure.S3;
 
 namespace ExpenseTracker.Api.Api;
 
@@ -12,11 +13,13 @@ public sealed class RequestRouter
     private readonly MeHandler _meHandler;
     private readonly ExpenseHandlers _expenseHandlers;
     private readonly FinanceHandlers _financeHandlers;
+    private readonly ReceiptHandlers _receiptHandlers;
 
     public RequestRouter(
         IExpenseRepository? expenseRepository = null,
         IClock? clock = null,
-        CognitoUserContext? userContext = null)
+        CognitoUserContext? userContext = null,
+        IReceiptService? receiptService = null)
     {
         // Temporary local pre-AWS defaults: in-memory storage and a demo Employee user.
         // Real Lambda/API Gateway wiring will provide these dependencies from AWS context.
@@ -30,6 +33,11 @@ public sealed class RequestRouter
         _meHandler = new MeHandler(resolvedUserContext);
         _expenseHandlers = new ExpenseHandlers(repository, resolvedClock, resolvedUserContext);
         _financeHandlers = new FinanceHandlers(repository, resolvedClock, resolvedUserContext);
+        _receiptHandlers = new ReceiptHandlers(
+            repository,
+            receiptService ?? new LocalReceiptService(resolvedClock),
+            resolvedClock,
+            resolvedUserContext);
     }
 
     public async Task<ApiResponse> Route(
@@ -56,7 +64,7 @@ public sealed class RequestRouter
             EndpointNames.SubmitExpense => await _expenseHandlers.SubmitAsync(match, body, cancellationToken),
             EndpointNames.FinanceQueue => await _financeHandlers.QueueAsync(match, body, cancellationToken),
             EndpointNames.ReviewExpense => await _financeHandlers.ReviewAsync(match, body, cancellationToken),
-            EndpointNames.ReceiptUrl => ReceiptHandlers.CreateUrl(match, body),
+            EndpointNames.ReceiptUrl => await _receiptHandlers.CreateUrlAsync(match, body, cancellationToken),
             _ => ApiResponse.NotFound()
         };
     }
