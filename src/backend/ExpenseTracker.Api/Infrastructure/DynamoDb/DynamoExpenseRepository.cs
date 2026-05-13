@@ -8,6 +8,7 @@ public sealed class DynamoExpenseRepository : IExpenseRepository
 {
     public const string DefaultTableNameEnvironmentVariable = "EXPENSE_REPORTS_TABLE";
     public const string Gsi1IndexName = "GSI1";
+    public const string Gsi2IndexName = "GSI2";
 
     private readonly IAmazonDynamoDB _dynamoDb;
     private readonly string _tableName;
@@ -131,18 +132,42 @@ public sealed class DynamoExpenseRepository : IExpenseRepository
         return submitted;
     }
 
-    public Task<IReadOnlyList<ExpenseReport>> ListFinanceQueueAsync(
-        CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException("Finance queue DynamoDB query will be implemented with GSI2.");
+    public async Task<IReadOnlyList<ExpenseReport>> ListFinanceQueueAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var submittedResponse = await _dynamoDb.QueryAsync(
+            CreateFinanceQueueRequest(_tableName, ExpenseStatus.Submitted),
+            cancellationToken);
+        var resubmittedResponse = await _dynamoDb.QueryAsync(
+            CreateFinanceQueueRequest(_tableName, ExpenseStatus.Resubmitted),
+            cancellationToken);
 
-    public Task<ExpenseReport> ReviewAsync(
+        return submittedResponse.Items
+            .Concat(resubmittedResponse.Items)
+            .Select(item => DynamoExpenseMapper.ToDomain(DynamoExpenseMapper.FromAttributeMap(item)))
+            .OrderBy(expense => expense.SubmittedAt)
+            .ToArray();
+    }
+
+    public async Task<ExpenseReport> ReviewAsync(
         string expenseId,
         ReviewDecision decision,
         string financeManagerId,
         string? rejectionReason,
         DateTimeOffset reviewedAt,
-        CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException("Finance review DynamoDB update is outside this story.");
+        CancellationToken cancellationToken = default)
+    {
+        var current = await GetByIdAsync(expenseId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Expense '{expenseId}' was not found.");
+
+        var reviewed = ApplyReview(current, decision, financeManagerId, rejectionReason, reviewedAt);
+
+        await _dynamoDb.PutItemAsync(
+            CreateReviewPutRequest(_tableName, DynamoExpenseMapper.ToItem(reviewed)),
+            cancellationToken);
+
+        return reviewed;
+    }
 
     public Task<ExpenseReport> AttachReceiptAsync(
         string expenseId,
@@ -175,6 +200,69 @@ public sealed class DynamoExpenseRepository : IExpenseRepository
             },
             ScanIndexForward = false
         };
+
+    public static QueryRequest CreateFinanceQueueRequest(string tableName, ExpenseStatus status)
+    {
+        if (status is not (ExpenseStatus.Submitted or ExpenseStatus.Resubmitted))
+        {
+            throw new ArgumentException(
+                "Finance queue can only be queried for Submitted or Resubmitted expenses.",
+                nameof(status));
+        }
+
+        return new QueryRequest
+        {
+            TableName = tableName,
+            IndexName = Gsi2IndexName,
+            KeyConditionExpression = "GSI2PK = :statusPk",
+            ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                [":statusPk"] = new() { S = $"STATUS#{status}" }
+            },
+            ScanIndexForward = true
+        };
+    }
+
+    public static PutItemRequest CreateReviewPutRequest(string tableName, DynamoExpenseItem item) =>
+        CreatePutRequest(
+            tableName,
+            item,
+            "#status = :submitted OR #status = :resubmitted",
+            new Dictionary<string, string>
+            {
+                ["#status"] = "status"
+            },
+            new Dictionary<string, AttributeValue>
+            {
+                [":submitted"] = new() { S = ExpenseStatus.Submitted.ToString() },
+                [":resubmitted"] = new() { S = ExpenseStatus.Resubmitted.ToString() }
+            });
+
+    public static ExpenseReport ApplyReview(
+        ExpenseReport current,
+        ReviewDecision decision,
+        string financeManagerId,
+        string? rejectionReason,
+        DateTimeOffset reviewedAt)
+    {
+        var reviewError = ExpenseStateMachine.ValidateReview(
+            current.Status,
+            decision,
+            rejectionReason);
+        if (reviewError is not null)
+        {
+            throw new InvalidOperationException(reviewError.Message);
+        }
+
+        return current with
+        {
+            Status = ExpenseStateMachine.GetReviewTarget(decision),
+            ReviewedAt = reviewedAt,
+            ReviewedBy = financeManagerId,
+            RejectionReason = rejectionReason,
+            UpdatedAt = reviewedAt
+        };
+    }
 
     public static PutItemRequest CreatePutRequest(
         string tableName,

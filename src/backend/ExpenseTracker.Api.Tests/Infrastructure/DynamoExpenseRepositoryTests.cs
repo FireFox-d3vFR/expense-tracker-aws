@@ -64,6 +64,87 @@ public sealed class DynamoExpenseRepositoryTests
         Assert.Equal(item.Status, mapped.Status);
     }
 
+    [Fact]
+    public void CreateFinanceQueueRequest_targets_gsi2_submitted_status()
+    {
+        var request = DynamoExpenseRepository.CreateFinanceQueueRequest(
+            "ExpenseReports",
+            ExpenseStatus.Submitted);
+
+        Assert.Equal("ExpenseReports", request.TableName);
+        Assert.Equal(DynamoExpenseRepository.Gsi2IndexName, request.IndexName);
+        Assert.Equal("GSI2PK = :statusPk", request.KeyConditionExpression);
+        Assert.Equal("STATUS#Submitted", request.ExpressionAttributeValues[":statusPk"].S);
+        Assert.True(request.ScanIndexForward);
+    }
+
+    [Fact]
+    public void CreateFinanceQueueRequest_targets_gsi2_resubmitted_status()
+    {
+        var request = DynamoExpenseRepository.CreateFinanceQueueRequest(
+            "ExpenseReports",
+            ExpenseStatus.Resubmitted);
+
+        Assert.Equal(DynamoExpenseRepository.Gsi2IndexName, request.IndexName);
+        Assert.Equal("STATUS#Resubmitted", request.ExpressionAttributeValues[":statusPk"].S);
+    }
+
+    [Fact]
+    public void Review_approve_builds_condition_for_submitted_or_resubmitted_status()
+    {
+        var reviewed = DynamoExpenseRepository.ApplyReview(
+            Expense(ExpenseStatus.Submitted),
+            ReviewDecision.Approve,
+            "finance-1",
+            null,
+            new DateTimeOffset(2026, 5, 14, 10, 0, 0, TimeSpan.Zero));
+
+        var request = DynamoExpenseRepository.CreateReviewPutRequest(
+            "ExpenseReports",
+            DynamoExpenseMapper.ToItem(reviewed));
+
+        Assert.Equal(ExpenseStatus.Approved.ToString(), request.Item["status"].S);
+        Assert.Equal("#status = :submitted OR #status = :resubmitted", request.ConditionExpression);
+        Assert.Equal("status", request.ExpressionAttributeNames["#status"]);
+        Assert.Equal("Submitted", request.ExpressionAttributeValues[":submitted"].S);
+        Assert.Equal("Resubmitted", request.ExpressionAttributeValues[":resubmitted"].S);
+    }
+
+    [Fact]
+    public void Review_reject_requires_rejection_reason()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            DynamoExpenseRepository.ApplyReview(
+                Expense(ExpenseStatus.Submitted),
+                ReviewDecision.Reject,
+                "finance-1",
+                null,
+                new DateTimeOffset(2026, 5, 14, 10, 0, 0, TimeSpan.Zero)));
+
+        Assert.Contains("rejection reason", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData(ReviewDecision.Approve, ExpenseStatus.Approved)]
+    [InlineData(ReviewDecision.Reject, ExpenseStatus.Rejected)]
+    public void Reviewed_items_are_removed_from_gsi2(
+        ReviewDecision decision,
+        ExpenseStatus expectedStatus)
+    {
+        var reviewed = DynamoExpenseRepository.ApplyReview(
+            Expense(ExpenseStatus.Submitted),
+            decision,
+            "finance-1",
+            decision is ReviewDecision.Reject ? "Missing receipt details." : null,
+            new DateTimeOffset(2026, 5, 14, 10, 0, 0, TimeSpan.Zero));
+
+        var item = DynamoExpenseMapper.ToItem(reviewed);
+
+        Assert.Equal(expectedStatus.ToString(), item.Status);
+        Assert.Null(item.GSI2PK);
+        Assert.Null(item.GSI2SK);
+    }
+
     private static ExpenseReport Expense(ExpenseStatus status) =>
         new(
             "expense-1",
