@@ -9,6 +9,7 @@ namespace ExpenseTracker.Api.Api;
 public sealed class RequestRouter
 {
     private static readonly char[] PathSeparators = ['/'];
+    private readonly MeHandler _meHandler;
     private readonly ExpenseHandlers _expenseHandlers;
     private readonly FinanceHandlers _financeHandlers;
 
@@ -26,6 +27,7 @@ public sealed class RequestRouter
             "employee@example.test",
             new HashSet<ExpenseActorRole> { ExpenseActorRole.Employee });
 
+        _meHandler = new MeHandler(resolvedUserContext);
         _expenseHandlers = new ExpenseHandlers(repository, resolvedClock, resolvedUserContext);
         _financeHandlers = new FinanceHandlers(repository, resolvedClock, resolvedUserContext);
     }
@@ -46,7 +48,7 @@ public sealed class RequestRouter
 
         return match.EndpointName switch
         {
-            EndpointNames.Me => MeHandler.Get(match, body),
+            EndpointNames.Me => _meHandler.Get(match, body),
             EndpointNames.CreateExpense => await _expenseHandlers.CreateAsync(match, body, cancellationToken),
             EndpointNames.ListEmployeeExpenses => await _expenseHandlers.ListForEmployeeAsync(match, body, cancellationToken),
             EndpointNames.GetExpense => await _expenseHandlers.GetByIdAsync(match, body, cancellationToken),

@@ -15,15 +15,14 @@ public sealed class LambdaEntryPointTests
     {
         var entryPoint = new LambdaEntryPoint();
 
-        var response = await entryPoint.HandleApiGatewayProxyAsync(new APIGatewayProxyRequest
-        {
-            HttpMethod = "GET",
-            Path = "/me",
-            Body = null
-        });
+        var response = await entryPoint.HandleApiGatewayProxyAsync(Request("GET", "/me"));
+        var me = JsonSerializer.Deserialize<MeResponse>(response.Body, JsonOptions);
 
-        Assert.Equal(501, response.StatusCode);
-        Assert.Contains(EndpointNames.Me, response.Body);
+        Assert.Equal(200, response.StatusCode);
+        Assert.NotNull(me);
+        Assert.Equal("employee-from-claims", me.UserId);
+        Assert.Equal("employee.claims@example.test", me.Email);
+        Assert.Contains(ExpenseActorRole.Employee, me.Roles);
     }
 
     [Fact]
@@ -31,12 +30,7 @@ public sealed class LambdaEntryPointTests
     {
         var entryPoint = new LambdaEntryPoint();
 
-        var response = await entryPoint.HandleApiGatewayProxyAsync(new APIGatewayProxyRequest
-        {
-            HttpMethod = "GET",
-            Path = "/unknown",
-            Body = null
-        });
+        var response = await entryPoint.HandleApiGatewayProxyAsync(Request("GET", "/unknown"));
 
         Assert.Equal(404, response.StatusCode);
         Assert.Equal("Route not found.", response.Body);
@@ -53,18 +47,14 @@ public sealed class LambdaEntryPointTests
             "Client lunch",
             new DateOnly(2026, 5, 13)), JsonOptions);
 
-        var response = await entryPoint.HandleApiGatewayProxyAsync(new APIGatewayProxyRequest
-        {
-            HttpMethod = "POST",
-            Path = "/expenses",
-            Body = body
-        });
+        var response = await entryPoint.HandleApiGatewayProxyAsync(Request("POST", "/expenses", body));
         var expense = JsonSerializer.Deserialize<ExpenseResponse>(response.Body, JsonOptions);
 
         Assert.Equal(201, response.StatusCode);
         Assert.NotNull(expense);
         Assert.Equal(ExpenseStatus.Draft, expense.Status);
-        Assert.Equal("employee-1", expense.EmployeeId);
+        Assert.Equal("employee-from-claims", expense.EmployeeId);
+        Assert.Equal("employee.claims@example.test", expense.EmployeeEmail);
     }
 
     [Fact]
@@ -72,13 +62,91 @@ public sealed class LambdaEntryPointTests
     {
         var entryPoint = new LambdaEntryPoint();
 
-        var response = await entryPoint.HandleApiGatewayProxyAsync(new APIGatewayProxyRequest
-        {
-            HttpMethod = "GET",
-            Path = "/unknown"
-        });
+        var response = await entryPoint.HandleApiGatewayProxyAsync(Request("GET", "/unknown"));
 
         Assert.True(response.Headers.ContainsKey("Content-Type"));
         Assert.Equal("application/json", response.Headers["Content-Type"]);
     }
+
+    [Fact]
+    public async Task Request_without_claims_returns_clean_error()
+    {
+        var entryPoint = new LambdaEntryPoint();
+
+        var response = await entryPoint.HandleApiGatewayProxyAsync(new APIGatewayProxyRequest
+        {
+            HttpMethod = "GET",
+            Path = "/me"
+        });
+
+        Assert.Equal(401, response.StatusCode);
+        Assert.Contains("authorizer claims", response.Body);
+    }
+
+    [Fact]
+    public async Task Request_without_valid_role_returns_clean_error()
+    {
+        var entryPoint = new LambdaEntryPoint();
+
+        var response = await entryPoint.HandleApiGatewayProxyAsync(Request(
+            "GET",
+            "/me",
+            claims: new Dictionary<string, string>
+            {
+                ["sub"] = "user-without-role",
+                ["email"] = "norole@example.test"
+            }));
+
+        Assert.Equal(401, response.StatusCode);
+        Assert.Contains("explicit Employee or FinanceManager role", response.Body);
+    }
+
+    [Fact]
+    public async Task Finance_manager_claims_can_access_finance_queue()
+    {
+        var entryPoint = new LambdaEntryPoint();
+
+        var response = await entryPoint.HandleApiGatewayProxyAsync(Request(
+            "GET",
+            "/finance/queue",
+            claims: FinanceClaims()));
+
+        Assert.Equal(200, response.StatusCode);
+        Assert.Equal("[]", response.Body);
+    }
+
+    private static APIGatewayProxyRequest Request(
+        string method,
+        string path,
+        string? body = null,
+        Dictionary<string, string>? claims = null) =>
+        new()
+        {
+            HttpMethod = method,
+            Path = path,
+            Body = body,
+            RequestContext = new APIGatewayProxyRequest.ProxyRequestContext
+            {
+                Authorizer = new APIGatewayCustomAuthorizerContext
+                {
+                    Claims = claims ?? EmployeeClaims()
+                }
+            }
+        };
+
+    private static Dictionary<string, string> EmployeeClaims() =>
+        new()
+        {
+            ["sub"] = "employee-from-claims",
+            ["email"] = "employee.claims@example.test",
+            ["cognito:groups"] = "Employee"
+        };
+
+    private static Dictionary<string, string> FinanceClaims() =>
+        new()
+        {
+            ["sub"] = "finance-from-claims",
+            ["email"] = "finance.claims@example.test",
+            ["cognito:groups"] = "FinanceManager"
+        };
 }

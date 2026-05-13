@@ -1,7 +1,22 @@
+using System.Text.Json;
+using ExpenseTracker.Api.Contracts;
+using ExpenseTracker.Api.Infrastructure.Auth;
+
 namespace ExpenseTracker.Api.Api.Handlers;
 
-public static class MeHandler
+public sealed class MeHandler(CognitoUserContext userContext)
 {
-    public static ApiResponse Get(RouteMatch route, string? body = null) =>
-        ApiResponse.NotImplemented(route.EndpointName);
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    public ApiResponse Get(RouteMatch route, string? body = null)
+    {
+        userContext.ToActor();
+
+        var response = new MeResponse(
+            userContext.UserId,
+            userContext.Email,
+            userContext.Roles.ToArray());
+
+        return ApiResponse.Ok(JsonSerializer.Serialize(response, JsonOptions));
+    }
 }

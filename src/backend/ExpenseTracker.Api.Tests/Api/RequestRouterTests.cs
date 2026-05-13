@@ -62,12 +62,12 @@ public sealed class RequestRouterTests
     }
 
     [Fact]
-    public async Task Route_returns_not_implemented_for_known_route_skeleton()
+    public async Task Route_returns_current_user_for_me_route()
     {
         var response = await _router.Route("GET", "/me");
 
-        Assert.Equal(501, response.StatusCode);
-        Assert.Contains(EndpointNames.Me, response.Body);
+        Assert.Equal(200, response.StatusCode);
+        Assert.Contains("employee-1", response.Body);
     }
 
     [Theory]
