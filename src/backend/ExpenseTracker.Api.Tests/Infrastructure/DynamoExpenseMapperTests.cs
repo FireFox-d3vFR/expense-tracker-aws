@@ -41,6 +41,20 @@ public sealed class DynamoExpenseMapperTests
     }
 
     [Theory]
+    [InlineData(ExpenseStatus.Submitted)]
+    [InlineData(ExpenseStatus.Resubmitted)]
+    public void Submitted_or_resubmitted_without_submitted_at_is_rejected(ExpenseStatus status)
+    {
+        var expense = Expense(status) with { SubmittedAt = null };
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            DynamoExpenseMapper.ToItem(expense));
+
+        Assert.Contains("SubmittedAt", exception.Message);
+        Assert.Contains("GSI2SK", exception.Message);
+    }
+
+    [Theory]
     [InlineData(ExpenseStatus.Approved)]
     [InlineData(ExpenseStatus.Rejected)]
     public void Approved_and_rejected_map_to_item_without_gsi2(ExpenseStatus status)
