@@ -1,10 +1,32 @@
 using ExpenseTracker.Api.Api.Handlers;
+using ExpenseTracker.Api.Domain;
+using ExpenseTracker.Api.Infrastructure;
+using ExpenseTracker.Api.Infrastructure.Auth;
+using ExpenseTracker.Api.Infrastructure.DynamoDb;
 
 namespace ExpenseTracker.Api.Api;
 
 public sealed class RequestRouter
 {
     private static readonly char[] PathSeparators = ['/'];
+    private readonly ExpenseHandlers _expenseHandlers;
+
+    public RequestRouter(
+        IExpenseRepository? expenseRepository = null,
+        IClock? clock = null,
+        CognitoUserContext? userContext = null)
+    {
+        // Temporary local pre-AWS defaults: in-memory storage and a demo Employee user.
+        // Real Lambda/API Gateway wiring will provide these dependencies from AWS context.
+        var repository = expenseRepository ?? new InMemoryExpenseRepository();
+        var resolvedClock = clock ?? new SystemClock();
+        var resolvedUserContext = userContext ?? new CognitoUserContext(
+            "employee-1",
+            "employee@example.test",
+            new HashSet<ExpenseActorRole> { ExpenseActorRole.Employee });
+
+        _expenseHandlers = new ExpenseHandlers(repository, resolvedClock, resolvedUserContext);
+    }
 
     public ApiResponse Route(string method, string path, string? body = null)
     {
@@ -17,11 +39,11 @@ public sealed class RequestRouter
         return match.EndpointName switch
         {
             EndpointNames.Me => MeHandler.Get(match, body),
-            EndpointNames.CreateExpense => ExpenseHandlers.Create(match, body),
-            EndpointNames.ListEmployeeExpenses => ExpenseHandlers.ListForEmployee(match, body),
-            EndpointNames.GetExpense => ExpenseHandlers.GetById(match, body),
-            EndpointNames.UpdateExpense => ExpenseHandlers.Update(match, body),
-            EndpointNames.SubmitExpense => ExpenseHandlers.Submit(match, body),
+            EndpointNames.CreateExpense => _expenseHandlers.Create(match, body),
+            EndpointNames.ListEmployeeExpenses => _expenseHandlers.ListForEmployee(match, body),
+            EndpointNames.GetExpense => _expenseHandlers.GetById(match, body),
+            EndpointNames.UpdateExpense => _expenseHandlers.Update(match, body),
+            EndpointNames.SubmitExpense => _expenseHandlers.Submit(match, body),
             EndpointNames.FinanceQueue => FinanceHandlers.Queue(match, body),
             EndpointNames.ReviewExpense => FinanceHandlers.Review(match, body),
             EndpointNames.ReceiptUrl => ReceiptHandlers.CreateUrl(match, body),
