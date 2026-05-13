@@ -4,8 +4,29 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="My expenses">
-    <VerticalStackLayout Padding="24" Spacing="12">
-        <Label Text="Employee expenses" FontSize="24" />
-        <Label Text="Expense list will be connected in a later step." />
-    </VerticalStackLayout>
+    <Grid Padding="24" RowDefinitions="Auto,*" RowSpacing="16">
+        <VerticalStackLayout Spacing="4">
+            <Label Text="My expenses" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Mocked employee view" />
+        </VerticalStackLayout>
+
+        <CollectionView x:Name="ExpensesList" Grid.Row="1">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                            <Label Text="{Binding Category}" FontAttributes="Bold" />
+                            <Label Grid.Column="1" Text="{Binding Status}" />
+                            <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" />
+                            <HorizontalStackLayout Grid.Row="2" Spacing="4">
+                                <Label Text="{Binding Amount, StringFormat='{0:F2}'}" />
+                                <Label Text="{Binding Currency}" />
+                            </HorizontalStackLayout>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding ExpenseDate}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>

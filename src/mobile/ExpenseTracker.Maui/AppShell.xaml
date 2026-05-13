@@ -4,11 +4,22 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:ExpenseTracker.Maui.Views"
-    Title="ExpenseTracker.Maui">
+    Title="Expense Tracker"
+    FlyoutBehavior="Disabled">
 
     <ShellContent
         Title="Login"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="LoginPage" />
+
+    <ShellContent
+        Title="My expenses"
+        ContentTemplate="{DataTemplate views:EmployeeExpensesPage}"
+        Route="EmployeeExpensesPage" />
+
+    <ShellContent
+        Title="Finance queue"
+        ContentTemplate="{DataTemplate views:FinanceQueuePage}"
+        Route="FinanceQueuePage" />
 
 </Shell>
