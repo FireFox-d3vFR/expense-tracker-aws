@@ -1,1 +1,21 @@
 docs/source/Project_ExpenseTracker_5ENTAPP.pdf
+
+# .NET build outputs
+bin/
+obj/
+
+# IDE and local tooling
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Local secrets and environment files
+.env
+.env.*
+*.local.json
+appsettings.*.local.json
+
+# AWS local profiles or deployment artifacts
+.aws/
+*.zip
