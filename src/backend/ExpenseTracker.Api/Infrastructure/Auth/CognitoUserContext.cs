@@ -13,9 +13,13 @@ public sealed record CognitoUserContext(
 
     public ExpenseActor ToActor()
     {
-        var role = IsFinanceManager
-            ? ExpenseActorRole.FinanceManager
-            : ExpenseActorRole.Employee;
+        var role = IsFinanceManager switch
+        {
+            true => ExpenseActorRole.FinanceManager,
+            false when IsEmployee => ExpenseActorRole.Employee,
+            _ => throw new InvalidOperationException(
+                "Authenticated user must have an explicit Employee or FinanceManager role.")
+        };
 
         return new ExpenseActor(UserId, role);
     }
