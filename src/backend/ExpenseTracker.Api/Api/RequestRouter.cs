@@ -10,6 +10,7 @@ public sealed class RequestRouter
 {
     private static readonly char[] PathSeparators = ['/'];
     private readonly ExpenseHandlers _expenseHandlers;
+    private readonly FinanceHandlers _financeHandlers;
 
     public RequestRouter(
         IExpenseRepository? expenseRepository = null,
@@ -26,6 +27,7 @@ public sealed class RequestRouter
             new HashSet<ExpenseActorRole> { ExpenseActorRole.Employee });
 
         _expenseHandlers = new ExpenseHandlers(repository, resolvedClock, resolvedUserContext);
+        _financeHandlers = new FinanceHandlers(repository, resolvedClock, resolvedUserContext);
     }
 
     public async Task<ApiResponse> Route(
@@ -50,8 +52,8 @@ public sealed class RequestRouter
             EndpointNames.GetExpense => await _expenseHandlers.GetByIdAsync(match, body, cancellationToken),
             EndpointNames.UpdateExpense => await _expenseHandlers.UpdateAsync(match, body, cancellationToken),
             EndpointNames.SubmitExpense => await _expenseHandlers.SubmitAsync(match, body, cancellationToken),
-            EndpointNames.FinanceQueue => FinanceHandlers.Queue(match, body),
-            EndpointNames.ReviewExpense => FinanceHandlers.Review(match, body),
+            EndpointNames.FinanceQueue => await _financeHandlers.QueueAsync(match, body, cancellationToken),
+            EndpointNames.ReviewExpense => await _financeHandlers.ReviewAsync(match, body, cancellationToken),
             EndpointNames.ReceiptUrl => ReceiptHandlers.CreateUrl(match, body),
             _ => ApiResponse.NotFound()
         };
