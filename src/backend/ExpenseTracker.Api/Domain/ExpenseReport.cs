@@ -3,6 +3,7 @@ namespace ExpenseTracker.Api.Domain;
 public sealed record ExpenseReport(
     string ExpenseId,
     string EmployeeId,
+    string? EmployeeEmail,
     ExpenseStatus Status,
     decimal Amount = 0m,
     string Currency = "EUR",

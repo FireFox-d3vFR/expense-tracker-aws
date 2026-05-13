@@ -76,5 +76,5 @@ public sealed class ExpensePolicyTests
     }
 
     private static ExpenseReport Expense(ExpenseStatus status) =>
-        new("expense-1", Owner.UserId, status);
+        new("expense-1", Owner.UserId, "employee@example.test", status);
 }

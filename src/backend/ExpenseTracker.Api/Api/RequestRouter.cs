@@ -28,8 +28,14 @@ public sealed class RequestRouter
         _expenseHandlers = new ExpenseHandlers(repository, resolvedClock, resolvedUserContext);
     }
 
-    public ApiResponse Route(string method, string path, string? body = null)
+    public async Task<ApiResponse> Route(
+        string method,
+        string path,
+        string? body = null,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var match = Match(method, path);
         if (match is null)
         {
@@ -39,11 +45,11 @@ public sealed class RequestRouter
         return match.EndpointName switch
         {
             EndpointNames.Me => MeHandler.Get(match, body),
-            EndpointNames.CreateExpense => _expenseHandlers.Create(match, body),
-            EndpointNames.ListEmployeeExpenses => _expenseHandlers.ListForEmployee(match, body),
-            EndpointNames.GetExpense => _expenseHandlers.GetById(match, body),
-            EndpointNames.UpdateExpense => _expenseHandlers.Update(match, body),
-            EndpointNames.SubmitExpense => _expenseHandlers.Submit(match, body),
+            EndpointNames.CreateExpense => await _expenseHandlers.CreateAsync(match, body, cancellationToken),
+            EndpointNames.ListEmployeeExpenses => await _expenseHandlers.ListForEmployeeAsync(match, body, cancellationToken),
+            EndpointNames.GetExpense => await _expenseHandlers.GetByIdAsync(match, body, cancellationToken),
+            EndpointNames.UpdateExpense => await _expenseHandlers.UpdateAsync(match, body, cancellationToken),
+            EndpointNames.SubmitExpense => await _expenseHandlers.SubmitAsync(match, body, cancellationToken),
             EndpointNames.FinanceQueue => FinanceHandlers.Queue(match, body),
             EndpointNames.ReviewExpense => FinanceHandlers.Review(match, body),
             EndpointNames.ReceiptUrl => ReceiptHandlers.CreateUrl(match, body),

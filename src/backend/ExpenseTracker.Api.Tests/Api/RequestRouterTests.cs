@@ -62,9 +62,9 @@ public sealed class RequestRouterTests
     }
 
     [Fact]
-    public void Route_returns_not_implemented_for_known_route_skeleton()
+    public async Task Route_returns_not_implemented_for_known_route_skeleton()
     {
-        var response = _router.Route("GET", "/me");
+        var response = await _router.Route("GET", "/me");
 
         Assert.Equal(501, response.StatusCode);
         Assert.Contains(EndpointNames.Me, response.Body);
@@ -74,9 +74,9 @@ public sealed class RequestRouterTests
     [InlineData("GET", "/unknown")]
     [InlineData("DELETE", "/expenses/expense-1")]
     [InlineData("POST", "/finance/queue")]
-    public void Route_returns_404_for_unknown_route(string method, string path)
+    public async Task Route_returns_404_for_unknown_route(string method, string path)
     {
-        var response = _router.Route(method, path);
+        var response = await _router.Route(method, path);
 
         Assert.Equal(404, response.StatusCode);
         Assert.Equal("Route not found.", response.Body);

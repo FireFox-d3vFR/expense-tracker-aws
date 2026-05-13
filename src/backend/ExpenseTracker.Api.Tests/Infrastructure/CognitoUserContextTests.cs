@@ -48,6 +48,47 @@ public sealed class CognitoUserContextTests
         Assert.Contains("explicit Employee or FinanceManager role", exception.Message);
     }
 
+    [Fact]
+    public void UserContextFactory_builds_context_from_simulated_claims()
+    {
+        var context = UserContextFactory.FromClaims(new Dictionary<string, string>
+        {
+            ["sub"] = "user-1",
+            ["email"] = "user@example.com",
+            ["cognito:groups"] = "Employee"
+        });
+
+        Assert.Equal("user-1", context.UserId);
+        Assert.Equal("user@example.com", context.Email);
+        Assert.True(context.IsEmployee);
+        Assert.False(context.IsFinanceManager);
+    }
+
+    [Fact]
+    public void UserContextFactory_builds_finance_manager_from_group_claim()
+    {
+        var context = UserContextFactory.FromClaims(new Dictionary<string, string>
+        {
+            ["sub"] = "finance-1",
+            ["cognito:groups"] = "FinanceManager"
+        });
+
+        Assert.Equal("finance-1", context.UserId);
+        Assert.True(context.IsFinanceManager);
+    }
+
+    [Fact]
+    public void UserContextFactory_rejects_missing_sub_claim()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            UserContextFactory.FromClaims(new Dictionary<string, string>
+            {
+                ["cognito:groups"] = "Employee"
+            }));
+
+        Assert.Contains("sub claim", exception.Message);
+    }
+
     private static CognitoUserContext ContextWithRoles(params ExpenseActorRole[] roles) =>
         new("user-1", "user@example.com", roles.ToHashSet());
 }

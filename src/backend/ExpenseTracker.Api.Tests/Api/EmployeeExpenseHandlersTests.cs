@@ -13,7 +13,7 @@ public sealed class EmployeeExpenseHandlersTests
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     [Fact]
-    public void Create_returns_created_expense()
+    public async Task Create_returns_created_expense()
     {
         var router = CreateRouter();
         var body = ToJson(new CreateExpenseRequest(
@@ -23,12 +23,13 @@ public sealed class EmployeeExpenseHandlersTests
             "Client lunch",
             new DateOnly(2026, 5, 3)));
 
-        var response = router.Route("POST", "/expenses", body);
+        var response = await router.Route("POST", "/expenses", body);
         var expense = Read<ExpenseResponse>(response);
 
         Assert.Equal(201, response.StatusCode);
         Assert.False(string.IsNullOrWhiteSpace(expense.ExpenseId));
         Assert.Equal("employee-1", expense.EmployeeId);
+        Assert.Equal("employee@example.test", expense.EmployeeEmail);
         Assert.Equal(ExpenseStatus.Draft, expense.Status);
         Assert.Equal(42.50m, expense.Amount);
         Assert.False(expense.HasReceipt);
@@ -39,10 +40,11 @@ public sealed class EmployeeExpenseHandlersTests
     {
         var repository = new InMemoryExpenseRepository();
         var router = CreateRouter(repository);
-        router.Route("POST", "/expenses", ValidCreateBody("Meals"));
+        await router.Route("POST", "/expenses", ValidCreateBody("Meals"));
         await repository.CreateAsync(new ExpenseReport(
             "expense-other",
             "employee-2",
+            "other@example.test",
             ExpenseStatus.Draft,
             10m,
             "EUR",
@@ -50,7 +52,7 @@ public sealed class EmployeeExpenseHandlersTests
             "Other employee",
             ExpenseDate: new DateOnly(2026, 5, 4)));
 
-        var response = router.Route("GET", "/expenses");
+        var response = await router.Route("GET", "/expenses");
         var expenses = Read<ExpenseResponse[]>(response);
 
         Assert.Equal(200, response.StatusCode);
@@ -60,13 +62,13 @@ public sealed class EmployeeExpenseHandlersTests
     }
 
     [Fact]
-    public void Get_returns_employee_expense_by_id()
+    public async Task Get_returns_employee_expense_by_id()
     {
         var router = CreateRouter();
         var created = Read<ExpenseResponse>(
-            router.Route("POST", "/expenses", ValidCreateBody("Hotel")));
+            await router.Route("POST", "/expenses", ValidCreateBody("Hotel")));
 
-        var response = router.Route("GET", $"/expenses/{created.ExpenseId}");
+        var response = await router.Route("GET", $"/expenses/{created.ExpenseId}");
         var expense = Read<ExpenseResponse>(response);
 
         Assert.Equal(200, response.StatusCode);
@@ -75,13 +77,13 @@ public sealed class EmployeeExpenseHandlersTests
     }
 
     [Fact]
-    public void Submit_moves_draft_expense_to_submitted()
+    public async Task Submit_moves_draft_expense_to_submitted()
     {
         var router = CreateRouter();
         var created = Read<ExpenseResponse>(
-            router.Route("POST", "/expenses", ValidCreateBody("Supplies")));
+            await router.Route("POST", "/expenses", ValidCreateBody("Supplies")));
 
-        var response = router.Route("POST", $"/expenses/{created.ExpenseId}/submit");
+        var response = await router.Route("POST", $"/expenses/{created.ExpenseId}/submit");
         var submitted = Read<ExpenseResponse>(response);
 
         Assert.Equal(200, response.StatusCode);

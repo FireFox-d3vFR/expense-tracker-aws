@@ -14,13 +14,13 @@ public sealed class LambdaEntryPoint
         _router = router;
     }
 
-    public Task<ApiResponse> HandleAsync(
+    public async Task<ApiResponse> HandleAsync(
         string method,
         string path,
         string? body = null,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(_router.Route(method, path, body));
+        return await _router.Route(method, path, body, cancellationToken);
     }
 }

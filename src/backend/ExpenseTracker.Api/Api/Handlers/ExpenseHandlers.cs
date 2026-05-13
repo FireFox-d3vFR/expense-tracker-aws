@@ -13,10 +13,11 @@ public sealed class ExpenseHandlers(
     CognitoUserContext userContext)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-    // Temporary sync bridge while LambdaEntryPoint still exposes a synchronous router.
-    // Replace GetAwaiter().GetResult() when the API Gateway pipeline becomes async end-to-end.
 
-    public ApiResponse Create(RouteMatch route, string? body = null)
+    public async Task<ApiResponse> CreateAsync(
+        RouteMatch route,
+        string? body = null,
+        CancellationToken cancellationToken = default)
     {
         if (!TryReadJson<CreateExpenseRequest>(body, out var request, out var error))
         {
@@ -33,6 +34,7 @@ public sealed class ExpenseHandlers(
         var expense = new ExpenseReport(
             Guid.NewGuid().ToString("N"),
             actor.UserId,
+            userContext.Email,
             ExpenseStatus.Draft,
             request.Amount,
             request.Currency,
@@ -42,11 +44,14 @@ public sealed class ExpenseHandlers(
             CreatedAt: now,
             UpdatedAt: now);
 
-        var created = expenseRepository.CreateAsync(expense).GetAwaiter().GetResult();
+        var created = await expenseRepository.CreateAsync(expense, cancellationToken);
         return ApiResponse.Created(ToJson(ToResponse(created, userContext.Email)));
     }
 
-    public ApiResponse ListForEmployee(RouteMatch route, string? body = null)
+    public async Task<ApiResponse> ListForEmployeeAsync(
+        RouteMatch route,
+        string? body = null,
+        CancellationToken cancellationToken = default)
     {
         var actor = userContext.ToActor();
         if (actor.Role is not ExpenseActorRole.Employee)
@@ -54,20 +59,21 @@ public sealed class ExpenseHandlers(
             return ApiResponse.Forbidden("Only employees can list their expenses.");
         }
 
-        var expenses = expenseRepository
-            .ListForEmployeeAsync(actor.UserId)
-            .GetAwaiter()
-            .GetResult()
+        var employeeExpenses = await expenseRepository.ListForEmployeeAsync(actor.UserId, cancellationToken);
+        var expenses = employeeExpenses
             .Select(expense => ToResponse(expense, userContext.Email))
             .ToArray();
 
         return ApiResponse.Ok(ToJson(expenses));
     }
 
-    public ApiResponse GetById(RouteMatch route, string? body = null)
+    public async Task<ApiResponse> GetByIdAsync(
+        RouteMatch route,
+        string? body = null,
+        CancellationToken cancellationToken = default)
     {
         var actor = userContext.ToActor();
-        var expense = GetExpense(route);
+        var expense = await GetExpenseAsync(route, cancellationToken);
         if (expense is null)
         {
             return ApiResponse.NotFound("Expense not found.");
@@ -81,7 +87,10 @@ public sealed class ExpenseHandlers(
         return ApiResponse.Ok(ToJson(ToResponse(expense, userContext.Email)));
     }
 
-    public ApiResponse Update(RouteMatch route, string? body = null)
+    public async Task<ApiResponse> UpdateAsync(
+        RouteMatch route,
+        string? body = null,
+        CancellationToken cancellationToken = default)
     {
         if (!TryReadJson<UpdateExpenseRequest>(body, out var request, out var error))
         {
@@ -89,7 +98,7 @@ public sealed class ExpenseHandlers(
         }
 
         var actor = userContext.ToActor();
-        var existing = GetExpense(route);
+        var existing = await GetExpenseAsync(route, cancellationToken);
         if (existing is null)
         {
             return ApiResponse.NotFound("Expense not found.");
@@ -110,14 +119,17 @@ public sealed class ExpenseHandlers(
             UpdatedAt = clock.UtcNow
         };
 
-        var saved = expenseRepository.UpdateDraftOrRejectedAsync(updated).GetAwaiter().GetResult();
+        var saved = await expenseRepository.UpdateDraftOrRejectedAsync(updated, cancellationToken);
         return ApiResponse.Ok(ToJson(ToResponse(saved, userContext.Email)));
     }
 
-    public ApiResponse Submit(RouteMatch route, string? body = null)
+    public async Task<ApiResponse> SubmitAsync(
+        RouteMatch route,
+        string? body = null,
+        CancellationToken cancellationToken = default)
     {
         var actor = userContext.ToActor();
-        var existing = GetExpense(route);
+        var existing = await GetExpenseAsync(route, cancellationToken);
         if (existing is null)
         {
             return ApiResponse.NotFound("Expense not found.");
@@ -128,19 +140,17 @@ public sealed class ExpenseHandlers(
             return ApiResponse.Forbidden("Expense cannot be submitted by this user.");
         }
 
-        var submitted = expenseRepository
-            .SubmitAsync(existing.ExpenseId, actor.UserId, clock.UtcNow)
-            .GetAwaiter()
-            .GetResult();
+        var submitted = await expenseRepository.SubmitAsync(
+            existing.ExpenseId,
+            actor.UserId,
+            clock.UtcNow,
+            cancellationToken);
 
         return ApiResponse.Ok(ToJson(ToResponse(submitted, userContext.Email)));
     }
 
-    private ExpenseReport? GetExpense(RouteMatch route) =>
-        expenseRepository
-            .GetByIdAsync(route.RouteValues["expenseId"])
-            .GetAwaiter()
-            .GetResult();
+    private Task<ExpenseReport?> GetExpenseAsync(RouteMatch route, CancellationToken cancellationToken) =>
+        expenseRepository.GetByIdAsync(route.RouteValues["expenseId"], cancellationToken);
 
     private static bool TryReadJson<T>(
         string? body,
@@ -180,7 +190,7 @@ public sealed class ExpenseHandlers(
         new(
             expense.ExpenseId,
             expense.EmployeeId,
-            employeeEmail,
+            expense.EmployeeEmail ?? employeeEmail,
             expense.Amount,
             expense.Currency,
             expense.Category ?? string.Empty,
