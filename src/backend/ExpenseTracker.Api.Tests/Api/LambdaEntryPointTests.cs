@@ -8,7 +8,7 @@ namespace ExpenseTracker.Api.Tests.Api;
 
 public sealed class LambdaEntryPointTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = ExpenseTracker.Api.Api.ApiJsonOptions.Default;
 
     [Fact]
     public async Task Get_me_returns_api_gateway_response()

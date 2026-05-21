@@ -10,7 +10,7 @@ namespace ExpenseTracker.Api.Tests.Api;
 
 public sealed class EmployeeExpenseHandlersTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = ExpenseTracker.Api.Api.ApiJsonOptions.Default;
 
     [Fact]
     public async Task Create_returns_created_expense()

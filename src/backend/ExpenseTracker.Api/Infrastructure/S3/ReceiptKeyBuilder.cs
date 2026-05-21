@@ -21,7 +21,8 @@ public static class ReceiptKeyBuilder
 
     public static string SanitizeFileName(string? fileName)
     {
-        var name = Path.GetFileName(fileName);
+        // Normalize Windows backslashes so Path.GetFileName works on Linux/macOS Lambda too.
+        var name = Path.GetFileName(fileName?.Replace('\\', '/'));
 
         if (string.IsNullOrWhiteSpace(name))
         {

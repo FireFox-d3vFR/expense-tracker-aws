@@ -12,7 +12,7 @@ public sealed class ExpenseHandlers(
     IClock clock,
     CognitoUserContext userContext)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = ApiJsonOptions.Default;
 
     public async Task<ApiResponse> CreateAsync(
         RouteMatch route,

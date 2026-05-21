@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ExpenseTracker.Maui.Views.CreateExpensePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="New expense">
+
+    <ScrollView>
+        <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="12">
+
+            <Label Text="New expense" FontSize="24" FontAttributes="Bold" />
+
+            <!-- Amount -->
+            <VerticalStackLayout Grid.Row="1" Spacing="4">
+                <Label Text="Amount" FontSize="12" TextColor="Gray" />
+                <Entry x:Name="AmountEntry" Placeholder="0.00" Keyboard="Numeric" />
+            </VerticalStackLayout>
+
+            <!-- Currency -->
+            <VerticalStackLayout Grid.Row="2" Spacing="4">
+                <Label Text="Currency" FontSize="12" TextColor="Gray" />
+                <Picker x:Name="CurrencyPicker" Title="Select currency">
+                    <Picker.Items>
+                        <x:String>EUR</x:String>
+                        <x:String>USD</x:String>
+                        <x:String>GBP</x:String>
+                        <x:String>CHF</x:String>
+                        <x:String>CAD</x:String>
+                    </Picker.Items>
+                </Picker>
+            </VerticalStackLayout>
+
+            <!-- Category -->
+            <VerticalStackLayout Grid.Row="3" Spacing="4">
+                <Label Text="Category" FontSize="12" TextColor="Gray" />
+                <Picker x:Name="CategoryPicker" Title="Select category">
+                    <Picker.Items>
+                        <x:String>Travel</x:String>
+                        <x:String>Accommodation</x:String>
+                        <x:String>Meals</x:String>
+                        <x:String>Equipment</x:String>
+                        <x:String>Training</x:String>
+                        <x:String>Other</x:String>
+                    </Picker.Items>
+                </Picker>
+            </VerticalStackLayout>
+
+            <!-- Description -->
+            <VerticalStackLayout Grid.Row="4" Spacing="4">
+                <Label Text="Description" FontSize="12" TextColor="Gray" />
+                <Editor x:Name="DescriptionEditor" Placeholder="Brief description…" HeightRequest="80" />
+            </VerticalStackLayout>
+
+            <!-- Expense date -->
+            <VerticalStackLayout Grid.Row="5" Spacing="4">
+                <Label Text="Date" FontSize="12" TextColor="Gray" />
+                <DatePicker x:Name="ExpenseDatePicker" />
+            </VerticalStackLayout>
+
+            <!-- Error -->
+            <Label x:Name="ErrorLabel" Grid.Row="6" TextColor="Red" IsVisible="False" />
+
+            <!-- Submit -->
+            <Button
+                x:Name="CreateButton"
+                Grid.Row="7"
+                Text="Create expense"
+                Clicked="OnCreateClicked"
+                BackgroundColor="#007AFF"
+                TextColor="White"
+                CornerRadius="8" />
+
+        </Grid>
+    </ScrollView>
+
+</ContentPage>

@@ -11,7 +11,7 @@ namespace ExpenseTracker.Api.Tests.Api;
 
 public sealed class ReceiptHandlersTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = ExpenseTracker.Api.Api.ApiJsonOptions.Default;
     private static readonly DateTimeOffset Now = new(2026, 5, 13, 10, 0, 0, TimeSpan.Zero);
 
     [Fact]

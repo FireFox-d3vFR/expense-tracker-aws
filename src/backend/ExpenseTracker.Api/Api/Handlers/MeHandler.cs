@@ -6,7 +6,7 @@ namespace ExpenseTracker.Api.Api.Handlers;
 
 public sealed class MeHandler(CognitoUserContext userContext)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = ApiJsonOptions.Default;
 
     public ApiResponse Get(RouteMatch route, string? body = null)
     {

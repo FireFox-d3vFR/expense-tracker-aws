@@ -4,29 +4,66 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="My expenses">
-    <Grid Padding="24" RowDefinitions="Auto,*" RowSpacing="16">
-        <VerticalStackLayout Spacing="4">
-            <Label Text="My expenses" FontSize="24" FontAttributes="Bold" />
-            <Label Text="Mocked employee view" />
-        </VerticalStackLayout>
 
-        <CollectionView x:Name="ExpensesList" Grid.Row="1">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD">
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
-                            <Label Text="{Binding Category}" FontAttributes="Bold" />
-                            <Label Grid.Column="1" Text="{Binding Status}" />
-                            <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" />
-                            <HorizontalStackLayout Grid.Row="2" Spacing="4">
-                                <Label Text="{Binding Amount, StringFormat='{0:F2}'}" />
-                                <Label Text="{Binding Currency}" />
-                            </HorizontalStackLayout>
-                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding ExpenseDate}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Sign out" Clicked="OnSignOutClicked" Order="Secondary" />
+    </ContentPage.ToolbarItems>
+
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="My expenses" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Text="+"
+                FontSize="20"
+                BackgroundColor="#007AFF"
+                TextColor="White"
+                WidthRequest="44"
+                HeightRequest="44"
+                CornerRadius="22"
+                Clicked="OnNewExpenseClicked" />
+        </Grid>
+
+        <ActivityIndicator
+            x:Name="LoadingIndicator"
+            Grid.Row="1"
+            IsRunning="False"
+            IsVisible="False"
+            HorizontalOptions="Center" />
+
+        <RefreshView x:Name="Refresher" Grid.Row="2" Refreshing="OnRefreshing">
+            <CollectionView
+                x:Name="ExpensesList"
+                SelectionMode="Single"
+                SelectionChanged="OnExpenseSelected">
+                <CollectionView.EmptyView>
+                    <Label
+                        Text="No expenses yet — tap + to create your first one."
+                        TextColor="Gray"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD" StrokeShape="RoundRectangle 8">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                <Label Text="{Binding Category}" FontAttributes="Bold" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding StatusLabel}"
+                                    TextColor="{Binding StatusColor}"
+                                    FontSize="12"
+                                    FontAttributes="Bold" />
+                                <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" TextColor="Gray" />
+                                <Label Grid.Row="2" Text="{Binding AmountDisplay}" FontAttributes="Bold" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding ExpenseDate}" TextColor="Gray" FontSize="12" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
     </Grid>
 </ContentPage>

@@ -4,29 +4,73 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="Finance queue">
-    <Grid Padding="24" RowDefinitions="Auto,*" RowSpacing="16">
-        <VerticalStackLayout Spacing="4">
-            <Label Text="Finance queue" FontSize="24" FontAttributes="Bold" />
-            <Label Text="Mocked reports awaiting review" />
-        </VerticalStackLayout>
 
-        <CollectionView x:Name="QueueList" Grid.Row="1">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD">
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
-                            <Label Text="{Binding Category}" FontAttributes="Bold" />
-                            <Label Grid.Column="1" Text="{Binding Status}" />
-                            <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" />
-                            <HorizontalStackLayout Grid.Row="2" Spacing="4">
-                                <Label Text="{Binding Amount, StringFormat='{0:F2}'}" />
-                                <Label Text="{Binding Currency}" />
-                            </HorizontalStackLayout>
-                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding ExpenseDate}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Sign out" Clicked="OnSignOutClicked" Order="Secondary" />
+    </ContentPage.ToolbarItems>
+
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+
+        <Label Text="Finance queue" FontSize="24" FontAttributes="Bold" />
+
+        <ActivityIndicator
+            x:Name="LoadingIndicator"
+            Grid.Row="1"
+            IsRunning="False"
+            IsVisible="False"
+            HorizontalOptions="Center" />
+
+        <RefreshView x:Name="Refresher" Grid.Row="2" Refreshing="OnRefreshing">
+            <CollectionView x:Name="QueueList">
+                <CollectionView.EmptyView>
+                    <Label
+                        Text="All caught up — no pending expenses."
+                        TextColor="Gray"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD" StrokeShape="RoundRectangle 8">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                <Label Text="{Binding Category}" FontAttributes="Bold" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding StatusLabel}"
+                                    TextColor="{Binding StatusColor}"
+                                    FontSize="12"
+                                    FontAttributes="Bold" />
+                                <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" TextColor="Gray" />
+                                <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding AmountDisplay}" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Text="{Binding EmployeeEmail}" TextColor="Gray" FontSize="12" />
+                                </Grid>
+                                <HorizontalStackLayout Grid.Row="3" Grid.ColumnSpan="2" Spacing="12" Margin="0,6,0,0">
+                                    <Button
+                                        Text="Approve"
+                                        BackgroundColor="#34C759"
+                                        TextColor="White"
+                                        FontSize="12"
+                                        CornerRadius="6"
+                                        Padding="12,6"
+                                        CommandParameter="{Binding ExpenseId}"
+                                        Clicked="OnApproveClicked" />
+                                    <Button
+                                        Text="Reject"
+                                        BackgroundColor="#FF3B30"
+                                        TextColor="White"
+                                        FontSize="12"
+                                        CornerRadius="6"
+                                        Padding="12,6"
+                                        CommandParameter="{Binding ExpenseId}"
+                                        Clicked="OnRejectClicked" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
     </Grid>
 </ContentPage>

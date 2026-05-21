@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ExpenseTracker.Maui.Views.ExpenseDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Expense detail">
+
+    <ScrollView>
+        <Grid x:Name="RootGrid" Padding="24" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="16">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <Label x:Name="CategoryLabel" FontSize="22" FontAttributes="Bold" />
+                <Border Grid.Column="1" Padding="8,4" BackgroundColor="#F0F0F0" StrokeShape="RoundRectangle 6" Stroke="Transparent">
+                    <Label x:Name="StatusLabel" FontSize="12" TextColor="Gray" />
+                </Border>
+            </Grid>
+
+            <!-- Amount + date -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                <Label x:Name="AmountLabel" FontSize="18" FontAttributes="Bold" TextColor="#007AFF" />
+                <Label x:Name="DateLabel" Grid.Column="1" TextColor="Gray" FontSize="13" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Description -->
+            <VerticalStackLayout Grid.Row="2" Spacing="2">
+                <Label Text="Description" FontSize="11" TextColor="Gray" />
+                <Label x:Name="DescriptionLabel" />
+            </VerticalStackLayout>
+
+            <!-- Submitted at -->
+            <VerticalStackLayout Grid.Row="3" Spacing="2" x:Name="SubmittedRow" IsVisible="False">
+                <Label Text="Submitted at" FontSize="11" TextColor="Gray" />
+                <Label x:Name="SubmittedAtLabel" />
+            </VerticalStackLayout>
+
+            <!-- Reviewed by + date -->
+            <VerticalStackLayout Grid.Row="4" Spacing="2" x:Name="ReviewedRow" IsVisible="False">
+                <Label Text="Reviewed by" FontSize="11" TextColor="Gray" />
+                <Label x:Name="ReviewedByLabel" />
+            </VerticalStackLayout>
+
+            <!-- Rejection reason -->
+            <Border Grid.Row="5" Padding="12" BackgroundColor="#FFF3F3" Stroke="#FFCCCC" StrokeShape="RoundRectangle 8"
+                    x:Name="RejectionRow" IsVisible="False">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Rejection reason" FontSize="11" TextColor="#CC0000" />
+                    <Label x:Name="RejectionReasonLabel" TextColor="#CC0000" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Receipt -->
+            <VerticalStackLayout Grid.Row="6" Spacing="2" x:Name="ReceiptRow" IsVisible="False">
+                <Label Text="Receipt" FontSize="11" TextColor="Gray" />
+                <Label x:Name="ReceiptLabel" TextColor="Green" />
+            </VerticalStackLayout>
+
+            <!-- Activity indicator -->
+            <ActivityIndicator Grid.Row="7" x:Name="Busy" IsRunning="False" IsVisible="False" HorizontalOptions="Center" />
+
+            <!-- Submit button -->
+            <Button
+                x:Name="SubmitButton"
+                Grid.Row="8"
+                Text="Submit for review"
+                Clicked="OnSubmitClicked"
+                BackgroundColor="#007AFF"
+                TextColor="White"
+                CornerRadius="8"
+                IsVisible="False" />
+
+            <!-- Upload receipt button -->
+            <Button
+                x:Name="UploadReceiptButton"
+                Grid.Row="9"
+                Text="Attach receipt (pre-signed URL)"
+                Clicked="OnUploadReceiptClicked"
+                BackgroundColor="#34C759"
+                TextColor="White"
+                CornerRadius="8"
+                IsVisible="False" />
+
+            <!-- Error -->
+            <Label x:Name="ErrorLabel" Grid.Row="10" TextColor="Red" IsVisible="False" />
+
+        </Grid>
+    </ScrollView>
+
+</ContentPage>

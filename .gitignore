@@ -19,3 +19,6 @@ appsettings.*.local.json
 # AWS local profiles or deployment artifacts
 .aws/
 *.zip
+
+# AWS sam
+.aws-sam/

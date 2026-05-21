@@ -14,7 +14,7 @@ public sealed class ReceiptHandlers(
     IClock clock,
     CognitoUserContext userContext)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = ApiJsonOptions.Default;
 
     public async Task<ApiResponse> CreateUrlAsync(
         RouteMatch route,
