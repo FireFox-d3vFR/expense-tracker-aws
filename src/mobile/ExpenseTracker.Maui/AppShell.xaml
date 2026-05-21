@@ -8,18 +8,18 @@
     FlyoutBehavior="Disabled">
 
     <ShellContent
+        x:Name="LoginShellContent"
         Title="Login"
-        ContentTemplate="{DataTemplate views:LoginPage}"
         Route="LoginPage" />
 
     <ShellContent
+        x:Name="EmployeeExpensesShellContent"
         Title="My expenses"
-        ContentTemplate="{DataTemplate views:EmployeeExpensesPage}"
         Route="EmployeeExpensesPage" />
 
     <ShellContent
+        x:Name="FinanceQueueShellContent"
         Title="Finance queue"
-        ContentTemplate="{DataTemplate views:FinanceQueuePage}"
         Route="FinanceQueuePage" />
 
 </Shell>

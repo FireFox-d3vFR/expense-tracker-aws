@@ -11,7 +11,7 @@
 
     <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="16">
 
-        <Label Text="Finance queue" FontSize="24" FontAttributes="Bold" />
+        <Label Text="Finance queue" Style="{StaticResource PageTitleLabel}" />
 
         <ActivityIndicator
             x:Name="LoadingIndicator"
@@ -25,42 +25,38 @@
                 <CollectionView.EmptyView>
                     <Label
                         Text="All caught up — no pending expenses."
-                        TextColor="Gray"
+                        Style="{StaticResource MutedLabel}"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD" StrokeShape="RoundRectangle 8">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
-                                <Label Text="{Binding Category}" FontAttributes="Bold" />
+                        <Border Style="{StaticResource CardBorder}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                                <Label Text="{Binding Category}" Style="{StaticResource SectionTitleLabel}" />
                                 <Label
                                     Grid.Column="1"
                                     Text="{Binding StatusLabel}"
                                     TextColor="{Binding StatusColor}"
                                     FontSize="12"
                                     FontAttributes="Bold" />
-                                <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" TextColor="Gray" />
+                                <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" Style="{StaticResource MutedLabel}" />
                                 <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto">
-                                    <Label Text="{Binding AmountDisplay}" FontAttributes="Bold" />
-                                    <Label Grid.Column="1" Text="{Binding EmployeeEmail}" TextColor="Gray" FontSize="12" />
+                                    <Label Text="{Binding AmountDisplay}" Style="{StaticResource AmountLabel}" />
+                                    <Label Grid.Column="1" Text="{Binding EmployeeEmail}" Style="{StaticResource MutedLabel}" />
                                 </Grid>
                                 <HorizontalStackLayout Grid.Row="3" Grid.ColumnSpan="2" Spacing="12" Margin="0,6,0,0">
                                     <Button
                                         Text="Approve"
-                                        BackgroundColor="#34C759"
-                                        TextColor="White"
+                                        Style="{StaticResource SuccessButton}"
                                         FontSize="12"
-                                        CornerRadius="6"
                                         Padding="12,6"
                                         CommandParameter="{Binding ExpenseId}"
                                         Clicked="OnApproveClicked" />
                                     <Button
                                         Text="Reject"
-                                        BackgroundColor="#FF3B30"
-                                        TextColor="White"
+                                        Style="{StaticResource DangerButton}"
                                         FontSize="12"
-                                        CornerRadius="6"
                                         Padding="12,6"
                                         CommandParameter="{Binding ExpenseId}"
                                         Clicked="OnRejectClicked" />

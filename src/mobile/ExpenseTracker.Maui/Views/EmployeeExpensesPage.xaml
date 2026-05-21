@@ -12,16 +12,11 @@
     <Grid Padding="24" RowDefinitions="Auto,Auto,*" RowSpacing="16">
 
         <Grid ColumnDefinitions="*,Auto">
-            <Label Text="My expenses" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+            <Label Text="My expenses" Style="{StaticResource PageTitleLabel}" VerticalOptions="Center" />
             <Button
                 Grid.Column="1"
                 Text="+"
-                FontSize="20"
-                BackgroundColor="#007AFF"
-                TextColor="White"
-                WidthRequest="44"
-                HeightRequest="44"
-                CornerRadius="22"
+                Style="{StaticResource IconButton}"
                 Clicked="OnNewExpenseClicked" />
         </Grid>
 
@@ -40,24 +35,24 @@
                 <CollectionView.EmptyView>
                     <Label
                         Text="No expenses yet — tap + to create your first one."
-                        TextColor="Gray"
+                        Style="{StaticResource MutedLabel}"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="12" Margin="0,0,0,10" Stroke="#DDDDDD" StrokeShape="RoundRectangle 8">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
-                                <Label Text="{Binding Category}" FontAttributes="Bold" />
+                        <Border Style="{StaticResource CardBorder}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                                <Label Text="{Binding Category}" Style="{StaticResource SectionTitleLabel}" />
                                 <Label
                                     Grid.Column="1"
                                     Text="{Binding StatusLabel}"
                                     TextColor="{Binding StatusColor}"
                                     FontSize="12"
                                     FontAttributes="Bold" />
-                                <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" TextColor="Gray" />
-                                <Label Grid.Row="2" Text="{Binding AmountDisplay}" FontAttributes="Bold" />
-                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding ExpenseDate}" TextColor="Gray" FontSize="12" />
+                                <Label Grid.Row="1" Text="{Binding Description}" Grid.ColumnSpan="2" Style="{StaticResource MutedLabel}" />
+                                <Label Grid.Row="2" Text="{Binding AmountDisplay}" Style="{StaticResource AmountLabel}" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding ExpenseDate}" Style="{StaticResource MutedLabel}" />
                             </Grid>
                         </Border>
                     </DataTemplate>

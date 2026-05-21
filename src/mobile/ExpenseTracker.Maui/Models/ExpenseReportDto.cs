@@ -30,10 +30,10 @@ public sealed record ExpenseReportDto(
 
     public Microsoft.Maui.Graphics.Color StatusColor => Status switch
     {
-        ExpenseStatus.Approved => Microsoft.Maui.Graphics.Color.FromArgb("#34C759"),
-        ExpenseStatus.Rejected => Microsoft.Maui.Graphics.Color.FromArgb("#FF3B30"),
-        ExpenseStatus.Submitted or ExpenseStatus.Resubmitted => Microsoft.Maui.Graphics.Color.FromArgb("#007AFF"),
-        _ => Microsoft.Maui.Graphics.Color.FromArgb("#8E8E93")
+        ExpenseStatus.Approved => Microsoft.Maui.Graphics.Color.FromArgb("#16A34A"),
+        ExpenseStatus.Rejected => Microsoft.Maui.Graphics.Color.FromArgb("#DC2626"),
+        ExpenseStatus.Submitted or ExpenseStatus.Resubmitted => Microsoft.Maui.Graphics.Color.FromArgb("#2563EB"),
+        _ => Microsoft.Maui.Graphics.Color.FromArgb("#6B7280")
     };
 
     public string AmountDisplay => $"{Amount:F2} {Currency}";

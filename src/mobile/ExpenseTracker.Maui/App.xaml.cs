@@ -1,15 +1,17 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace ExpenseTracker.Maui;
 
 public partial class App : Application
 {
-	private readonly AppShell _shell;
+	private readonly IServiceProvider _services;
 
-	public App(AppShell shell)
+	public App(IServiceProvider services)
 	{
 		InitializeComponent();
-		_shell = shell;
+		_services = services;
 	}
 
 	protected override Window CreateWindow(IActivationState? activationState) =>
-		new Window(_shell);
+		new Window(_services.GetRequiredService<AppShell>());
 }

@@ -10,49 +10,49 @@
 
             <!-- Header -->
             <Grid ColumnDefinitions="*,Auto">
-                <Label x:Name="CategoryLabel" FontSize="22" FontAttributes="Bold" />
-                <Border Grid.Column="1" Padding="8,4" BackgroundColor="#F0F0F0" StrokeShape="RoundRectangle 6" Stroke="Transparent">
-                    <Label x:Name="StatusLabel" FontSize="12" TextColor="Gray" />
+                <Label x:Name="CategoryLabel" Style="{StaticResource PageTitleLabel}" />
+                <Border Grid.Column="1" Padding="8,4" BackgroundColor="{StaticResource InfoBg}" StrokeShape="RoundRectangle 10" Stroke="Transparent">
+                    <Label x:Name="StatusLabel" FontSize="12" TextColor="{StaticResource Info}" FontAttributes="Bold" />
                 </Border>
             </Grid>
 
             <!-- Amount + date -->
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
-                <Label x:Name="AmountLabel" FontSize="18" FontAttributes="Bold" TextColor="#007AFF" />
-                <Label x:Name="DateLabel" Grid.Column="1" TextColor="Gray" FontSize="13" VerticalOptions="Center" />
+                <Label x:Name="AmountLabel" Style="{StaticResource AmountLabel}" TextColor="{StaticResource Primary}" />
+                <Label x:Name="DateLabel" Grid.Column="1" Style="{StaticResource MutedLabel}" VerticalOptions="Center" />
             </Grid>
 
             <!-- Description -->
             <VerticalStackLayout Grid.Row="2" Spacing="2">
-                <Label Text="Description" FontSize="11" TextColor="Gray" />
-                <Label x:Name="DescriptionLabel" />
+                <Label Text="Description" Style="{StaticResource FieldLabel}" />
+                <Label x:Name="DescriptionLabel" Style="{StaticResource BodyLabel}" />
             </VerticalStackLayout>
 
             <!-- Submitted at -->
             <VerticalStackLayout Grid.Row="3" Spacing="2" x:Name="SubmittedRow" IsVisible="False">
-                <Label Text="Submitted at" FontSize="11" TextColor="Gray" />
-                <Label x:Name="SubmittedAtLabel" />
+                <Label Text="Submitted at" Style="{StaticResource FieldLabel}" />
+                <Label x:Name="SubmittedAtLabel" Style="{StaticResource BodyLabel}" />
             </VerticalStackLayout>
 
             <!-- Reviewed by + date -->
             <VerticalStackLayout Grid.Row="4" Spacing="2" x:Name="ReviewedRow" IsVisible="False">
-                <Label Text="Reviewed by" FontSize="11" TextColor="Gray" />
-                <Label x:Name="ReviewedByLabel" />
+                <Label Text="Reviewed by" Style="{StaticResource FieldLabel}" />
+                <Label x:Name="ReviewedByLabel" Style="{StaticResource BodyLabel}" />
             </VerticalStackLayout>
 
             <!-- Rejection reason -->
-            <Border Grid.Row="5" Padding="12" BackgroundColor="#FFF3F3" Stroke="#FFCCCC" StrokeShape="RoundRectangle 8"
+            <Border Grid.Row="5" Style="{StaticResource DangerPanel}"
                     x:Name="RejectionRow" IsVisible="False">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="Rejection reason" FontSize="11" TextColor="#CC0000" />
-                    <Label x:Name="RejectionReasonLabel" TextColor="#CC0000" />
+                    <Label Text="Rejection reason" Style="{StaticResource FieldLabel}" TextColor="{StaticResource Danger}" />
+                    <Label x:Name="RejectionReasonLabel" Style="{StaticResource ErrorLabel}" />
                 </VerticalStackLayout>
             </Border>
 
             <!-- Receipt -->
             <VerticalStackLayout Grid.Row="6" Spacing="2" x:Name="ReceiptRow" IsVisible="False">
-                <Label Text="Receipt" FontSize="11" TextColor="Gray" />
-                <Label x:Name="ReceiptLabel" TextColor="Green" />
+                <Label Text="Receipt" Style="{StaticResource FieldLabel}" />
+                <Label x:Name="ReceiptLabel" Style="{StaticResource BodyLabel}" TextColor="{StaticResource Success}" />
             </VerticalStackLayout>
 
             <!-- Activity indicator -->
@@ -64,9 +64,7 @@
                 Grid.Row="8"
                 Text="Submit for review"
                 Clicked="OnSubmitClicked"
-                BackgroundColor="#007AFF"
-                TextColor="White"
-                CornerRadius="8"
+                Style="{StaticResource PrimaryButton}"
                 IsVisible="False" />
 
             <!-- Upload receipt button -->
@@ -75,13 +73,11 @@
                 Grid.Row="9"
                 Text="Attach receipt (pre-signed URL)"
                 Clicked="OnUploadReceiptClicked"
-                BackgroundColor="#34C759"
-                TextColor="White"
-                CornerRadius="8"
+                Style="{StaticResource SuccessButton}"
                 IsVisible="False" />
 
             <!-- Error -->
-            <Label x:Name="ErrorLabel" Grid.Row="10" TextColor="Red" IsVisible="False" />
+            <Label x:Name="ErrorLabel" Grid.Row="10" Style="{StaticResource ErrorLabel}" IsVisible="False" />
 
         </Grid>
     </ScrollView>

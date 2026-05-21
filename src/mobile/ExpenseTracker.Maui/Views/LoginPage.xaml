@@ -8,14 +8,13 @@
 
         <Label
             Text="Expense Tracker"
-            FontSize="28"
-            FontAttributes="Bold"
+            Style="{StaticResource ScreenTitleLabel}"
             HorizontalOptions="Center" />
 
         <Label
             Text="Sign in with your account"
             HorizontalOptions="Center"
-            TextColor="Gray" />
+            Style="{StaticResource MutedLabel}" />
 
         <Entry
             x:Name="EmailEntry"
@@ -32,11 +31,12 @@
         <Button
             x:Name="SignInButton"
             Text="Sign in"
+            Style="{StaticResource PrimaryButton}"
             Clicked="OnSignInClicked" />
 
         <Label
             x:Name="ErrorLabel"
-            TextColor="Red"
+            Style="{StaticResource ErrorLabel}"
             IsVisible="False"
             HorizontalOptions="Center" />
 

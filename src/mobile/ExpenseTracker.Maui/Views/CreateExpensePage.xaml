@@ -6,19 +6,19 @@
     Title="New expense">
 
     <ScrollView>
-        <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="12">
+        <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="14">
 
-            <Label Text="New expense" FontSize="24" FontAttributes="Bold" />
+            <Label Text="New expense" Style="{StaticResource PageTitleLabel}" />
 
             <!-- Amount -->
             <VerticalStackLayout Grid.Row="1" Spacing="4">
-                <Label Text="Amount" FontSize="12" TextColor="Gray" />
+                <Label Text="Amount" Style="{StaticResource FieldLabel}" />
                 <Entry x:Name="AmountEntry" Placeholder="0.00" Keyboard="Numeric" />
             </VerticalStackLayout>
 
             <!-- Currency -->
             <VerticalStackLayout Grid.Row="2" Spacing="4">
-                <Label Text="Currency" FontSize="12" TextColor="Gray" />
+                <Label Text="Currency" Style="{StaticResource FieldLabel}" />
                 <Picker x:Name="CurrencyPicker" Title="Select currency">
                     <Picker.Items>
                         <x:String>EUR</x:String>
@@ -32,7 +32,7 @@
 
             <!-- Category -->
             <VerticalStackLayout Grid.Row="3" Spacing="4">
-                <Label Text="Category" FontSize="12" TextColor="Gray" />
+                <Label Text="Category" Style="{StaticResource FieldLabel}" />
                 <Picker x:Name="CategoryPicker" Title="Select category">
                     <Picker.Items>
                         <x:String>Travel</x:String>
@@ -47,18 +47,18 @@
 
             <!-- Description -->
             <VerticalStackLayout Grid.Row="4" Spacing="4">
-                <Label Text="Description" FontSize="12" TextColor="Gray" />
+                <Label Text="Description" Style="{StaticResource FieldLabel}" />
                 <Editor x:Name="DescriptionEditor" Placeholder="Brief description…" HeightRequest="80" />
             </VerticalStackLayout>
 
             <!-- Expense date -->
             <VerticalStackLayout Grid.Row="5" Spacing="4">
-                <Label Text="Date" FontSize="12" TextColor="Gray" />
+                <Label Text="Date" Style="{StaticResource FieldLabel}" />
                 <DatePicker x:Name="ExpenseDatePicker" />
             </VerticalStackLayout>
 
             <!-- Error -->
-            <Label x:Name="ErrorLabel" Grid.Row="6" TextColor="Red" IsVisible="False" />
+            <Label x:Name="ErrorLabel" Grid.Row="6" Style="{StaticResource ErrorLabel}" IsVisible="False" />
 
             <!-- Submit -->
             <Button
@@ -66,9 +66,7 @@
                 Grid.Row="7"
                 Text="Create expense"
                 Clicked="OnCreateClicked"
-                BackgroundColor="#007AFF"
-                TextColor="White"
-                CornerRadius="8" />
+                Style="{StaticResource PrimaryButton}" />
 
         </Grid>
     </ScrollView>
