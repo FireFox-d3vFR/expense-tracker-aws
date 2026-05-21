@@ -1,13 +1,15 @@
 ---
 project: expense-tracker-aws
 artifact: PRD
-status: draft
+status: final
 source:
   - docs/project-context.md
   - docs/source/Project_ExpenseTracker_5ENTAPP.pdf
 ---
 
 # PRD - Expense Tracker AWS
+
+Etat final : les exigences MVP Must sont implementees dans la release `v1.0.1`. Les exigences d'historique avance restent volontairement limitees a un audit minimal.
 
 ## 1. Vision produit
 
@@ -51,7 +53,7 @@ Capacites attendues :
 - Voir les details d'une note et obtenir une URL pre-signee de consultation du justificatif.
 - Approuver une note.
 - Rejeter une note avec justification obligatoire.
-- Consulter l'historique des decisions.
+- Consulter les informations de decision disponibles dans le detail : statut, date de revue, reviewer et motif de rejet.
 
 ## 4. Workflow metier
 
@@ -95,7 +97,7 @@ Regles :
 | FR-11 | Approuver une note Submitted/Resubmitted. | Must |
 | FR-12 | Rejeter une note Submitted/Resubmitted avec justification. | Must |
 | FR-13 | Enregistrer les dates, auteurs et decisions pour audit minimal. | Should |
-| FR-14 | Afficher un historique simple du cycle de vie. | Should |
+| FR-14 | Afficher un historique simple du cycle de vie. | Partiel |
 | FR-15 | Prevenir les secrets dans le code et la configuration versionnee. | Must |
 
 ## 6. Exigences non fonctionnelles

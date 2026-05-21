@@ -1,13 +1,15 @@
 ---
 project: expense-tracker-aws
 artifact: Architecture serverless AWS
-status: refined-mvp
+status: final
 source:
   - docs/project-context.md
   - docs/source/Project_ExpenseTracker_5ENTAPP.pdf
 ---
 
 # Architecture serverless AWS
+
+Etat final : architecture implementee pour la release `v1.0.1`.
 
 ## 1. Decision MVP
 
@@ -23,23 +25,25 @@ Les Lambdas multiples par domaine restent une amelioration future si le projet g
 
 ## 2. Vue d'ensemble
 
-```text
-.NET MAUI App
-    |
-    | HTTPS + JWT Cognito
-    v
-Amazon API Gateway REST API
-    |
-    | Cognito Authorizer
-    v
-Single AWS Lambda API C#/.NET
-    |        |          |
-    |        |          +--> Amazon S3 private receipts bucket
-    |        +--> Amazon DynamoDB ExpenseReports table
-    +--> CloudWatch Logs
+```mermaid
+graph TD
+    MAUI[.NET MAUI App]
+    APIGW[API Gateway REST API]
+    COGNITO[Cognito Authorizer]
+    LAMBDA[Single Lambda API C#/.NET]
+    DDB[DynamoDB ExpenseReports]
+    S3[S3 private receipts bucket]
+    CW[CloudWatch Logs]
+
+    MAUI --> APIGW
+    APIGW --> COGNITO
+    APIGW --> LAMBDA
+    LAMBDA --> DDB
+    LAMBDA --> S3
+    LAMBDA --> CW
+```
 
 IAM limite les permissions Lambda vers DynamoDB, S3 et CloudWatch.
-```
 
 ## 3. Justification des services
 
@@ -79,42 +83,16 @@ Routes volontairement evitees pour le MVP :
 
 La Lambda unique ne doit pas devenir un monolithe illisible. Elle est structuree ainsi :
 
-```text
-ExpenseTracker.Api/
-  Api/
-    LambdaEntryPoint.cs
-    RequestRouter.cs
-    ApiResponse.cs
-    RouteMatch.cs
-    Handlers/
-      MeHandler.cs
-      ExpenseHandlers.cs
-      FinanceHandlers.cs
-      ReceiptHandlers.cs
-  Domain/
-    ExpenseReport.cs
-    ExpenseStatus.cs
-    ExpenseStateMachine.cs
-    ExpensePolicy.cs
-    ReviewDecision.cs
-  Infrastructure/
-    Auth/
-      CognitoUserContext.cs
-      UserContextFactory.cs
-    DynamoDb/
-      DynamoExpenseRepository.cs
-      DynamoExpenseItem.cs
-    S3/
-      S3ReceiptService.cs
-      ReceiptKeyBuilder.cs
-    Clock.cs
-  Contracts/
-    CreateExpenseRequest.cs
-    UpdateExpenseRequest.cs
-    ReviewExpenseRequest.cs
-    ReceiptUrlRequest.cs
-    ExpenseResponse.cs
-    PresignedUrlResponse.cs
+```mermaid
+graph TD
+    API[Api]
+    DOMAIN[Domain]
+    INFRA[Infrastructure]
+    CONTRACTS[Contracts]
+
+    API --> DOMAIN
+    API --> INFRA
+    API --> CONTRACTS
 ```
 
 Regle importante : les handlers API sont minces. Les decisions metier vivent dans `Domain/`, et les appels AWS vivent dans `Infrastructure/`.
@@ -136,10 +114,15 @@ Regles cote Lambda :
 
 Etats MVP :
 
-```text
-Draft -> Submitted -> Approved
-Draft -> Submitted -> Rejected -> Resubmitted -> Approved
-Draft -> Submitted -> Rejected -> Resubmitted -> Rejected
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Submitted
+    Submitted --> Approved
+    Submitted --> Rejected
+    Rejected --> Resubmitted
+    Resubmitted --> Approved
+    Resubmitted --> Rejected
 ```
 
 La route `/expenses/{expenseId}/submit` choisit la transition selon l'etat courant :
@@ -182,7 +165,7 @@ Cette approche est moins fine que des roles par Lambda, mais elle reste professi
 
 ## 10. Maintenant vs plus tard
 
-### A implementer maintenant
+### Implemente dans v1.0.1
 
 - Lambda API unique avec routage interne.
 - Cognito Authorizer API Gateway.
@@ -190,8 +173,8 @@ Cette approche est moins fine que des roles par Lambda, mais elle reste professi
 - Machine d'etats serveur.
 - DynamoDB table unique avec GSI1 et GSI2.
 - S3 prive avec URLs pre-signees upload/view.
-- Logs CloudWatch sans secrets.
-- Tests unitaires du domaine.
+- Logs CloudWatch via Lambda/API Gateway.
+- Tests backend couvrant domaine, API, infrastructure DynamoDB, Cognito et S3.
 
 ### Garder pour amelioration future
 

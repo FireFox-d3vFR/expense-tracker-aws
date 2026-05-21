@@ -1,7 +1,7 @@
 ---
 project: expense-tracker-aws
 artifact: Plan d'implementation technique
-status: draft
+status: final
 source:
   - _bmad-output/planning-artifacts/architecture.md
   - _bmad-output/planning-artifacts/dynamodb-model.md
@@ -10,6 +10,8 @@ source:
 ---
 
 # Plan d'implementation technique
+
+Etat final : ce plan conserve la trace de la sequence d'implementation. Le projet est termine en `v1.0.1`; les commandes initiales ci-dessous sont historiques et ne remplacent pas les instructions du README.
 
 Ce plan transforme le cadrage MVP en sequence d'execution progressive. Il s'appuie sur :
 
@@ -194,28 +196,35 @@ Commit recommande :
 feat: add lambda api routing skeleton
 ```
 
-### Etape 6 - Ajouter le shell MAUI
+### Etape 6 - Ajouter le client MAUI
 
-But : creer le projet MAUI et les dossiers de base, sans construire toute l'IHM.
+But initial : creer le projet MAUI et les dossiers de base. Etat final : le client contient les pages de login, liste Employee, creation, detail et file Finance.
 
-Structure attendue :
+Structure finale :
 
 ```text
 src/mobile/ExpenseTracker.Maui/
   Views/
-  ViewModels/
   Services/
   Models/
+  Resources/Styles/
 ```
 
-Premiers fichiers a prevoir :
+Fichiers principaux :
 - `Models/ExpenseReportDto.cs`
 - `Models/ExpenseStatus.cs`
+- `Models/MeDto.cs`
+- `Models/PresignedUrlDto.cs`
 - `Services/AuthService.cs`
 - `Services/ExpenseApiClient.cs`
+- `Services/SecureTokenStore.cs`
 - `Views/LoginPage.xaml`
 - `Views/EmployeeExpensesPage.xaml`
+- `Views/CreateExpensePage.xaml`
+- `Views/ExpenseDetailPage.xaml`
 - `Views/FinanceQueuePage.xaml`
+- `Resources/Styles/Colors.xaml`
+- `Resources/Styles/Styles.xaml`
 
 Commit recommande :
 
@@ -247,7 +256,7 @@ dotnet new maui -n ExpenseTracker.Maui -o src\mobile\ExpenseTracker.Maui
 dotnet sln src\ExpenseTracker.sln add src\mobile\ExpenseTracker.Maui\ExpenseTracker.Maui.csproj
 ```
 
-## Mapping etapes ↔ stories BMAD
+## Mapping etapes vers stories BMAD
 
 | Etape | Stories BMAD liees | Resultat attendu |
 | --- | --- | --- |
@@ -269,14 +278,23 @@ dotnet sln src\ExpenseTracker.sln add src\mobile\ExpenseTracker.Maui\ExpenseTrac
 - Garder les tests Domain rapides et sans dependance AWS.
 - Verifier que chaque commit compile et que `dotnet test` passe.
 
-## Ce qui est volontairement hors MVP
+## Etat final et limites
+
+Realise dans la release :
+
+- backend Lambda API C#/.NET ;
+- routage REST complet ;
+- DynamoDB reel avec GSIs ;
+- Cognito authorizer et RBAC cote Lambda ;
+- S3 pre-signed URLs ;
+- client MAUI connecte a l'API ;
+- design system MAUI corporate ;
+- scripts SAM, seed users et smoke tests ;
+- tests backend.
+
+Hors scope conserve :
 
 - Plusieurs Lambdas par domaine.
-- Appels reels DynamoDB avant stabilisation du domaine et des interfaces.
-- Appels reels S3 avant validation de `ReceiptKeyBuilder` et `IReceiptService`.
-- Deploiement CloudFormation/SAM complet dans les premiers commits.
-- Cognito complet cote MAUI dans le shell initial.
-- Upload fichier reel depuis MAUI.
 - GSI3 et reporting Finance.
 - Historique d'audit detaille sous forme d'entites DynamoDB separees.
 - Notifications email.

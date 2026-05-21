@@ -1,7 +1,7 @@
 ---
 project: expense-tracker-aws
 artifact: Structure repository
-status: refined-mvp
+status: final
 source:
   - docs/project-context.md
   - docs/source/Project_ExpenseTracker_5ENTAPP.pdf
@@ -9,50 +9,27 @@ source:
 
 # Structure de repository
 
-## 1. Decision MVP
+Le repository final separe clairement le client MAUI, le backend Lambda, l'infrastructure AWS, les samples et la documentation.
 
-Le repository garde une separation nette entre :
-- l'IHM .NET MAUI ;
-- le backend Lambda API C# ;
-- le domaine metier testable ;
-- l'infrastructure AWS ;
-- la documentation et les supports de demo.
-
-Le backend MVP est une seule Lambda API, mais le code reste decoupe en dossiers par responsabilite.
-
-## 2. Structure recommandee
+## Vue d'ensemble
 
 ```text
 expense-tracker-aws/
   README.md
-  .gitignore
   docs/
     project-context.md
-    architecture-diagram.md
+    final-documentation-audit.md
     report/
       report.md
     source/
       Project_ExpenseTracker_5ENTAPP.pdf
   src/
     ExpenseTracker.sln
-    mobile/
-      ExpenseTracker.Maui/
-        ExpenseTracker.Maui.csproj
-        App.xaml
-        MauiProgram.cs
-        Views/
-        ViewModels/
-        Services/
-        Models/
     backend/
       ExpenseTracker.Api/
-        ExpenseTracker.Api.csproj
-        Api/
-        Domain/
-        Infrastructure/
-        Contracts/
       ExpenseTracker.Api.Tests/
-        ExpenseTracker.Api.Tests.csproj
+    mobile/
+      ExpenseTracker.Maui/
   infra/
     cloudformation/
       template.yaml
@@ -66,128 +43,140 @@ expense-tracker-aws/
       submit-expense.json
       review-expense.json
       receipt-url.json
-  tests/
-    manual-test-plan.md
-    api-test-cases.md
   _bmad-output/
     planning-artifacts/
 ```
 
-## 3. Backend C# concret
+## Backend
 
 ```text
-ExpenseTracker.Api/
+src/backend/ExpenseTracker.Api/
   Api/
     LambdaEntryPoint.cs
     RequestRouter.cs
     RouteMatch.cs
     ApiResponse.cs
+    ApiJsonOptions.cs
     Handlers/
       MeHandler.cs
       ExpenseHandlers.cs
       FinanceHandlers.cs
       ReceiptHandlers.cs
-  Domain/
-    ExpenseReport.cs
-    ExpenseStatus.cs
-    ExpenseStateMachine.cs
-    ExpensePolicy.cs
-    ReviewDecision.cs
-    DomainErrors.cs
-  Infrastructure/
-    Auth/
-      CognitoUserContext.cs
-      UserContextFactory.cs
-    DynamoDb/
-      IExpenseRepository.cs
-      DynamoExpenseRepository.cs
-      DynamoExpenseItem.cs
-    S3/
-      IReceiptService.cs
-      S3ReceiptService.cs
-      ReceiptKeyBuilder.cs
-    Clock.cs
   Contracts/
     CreateExpenseRequest.cs
     UpdateExpenseRequest.cs
     ReviewExpenseRequest.cs
     ReceiptUrlRequest.cs
     ExpenseResponse.cs
+    MeResponse.cs
     PresignedUrlResponse.cs
+  Domain/
+    ExpenseReport.cs
+    ExpenseStatus.cs
+    ExpenseStateMachine.cs
+    ExpensePolicy.cs
+    ReviewDecision.cs
+    DomainError.cs
+  Infrastructure/
+    Auth/
+      CognitoUserContext.cs
+      UserContextFactory.cs
+    DynamoDb/
+      IExpenseRepository.cs
+      InMemoryExpenseRepository.cs
+      DynamoExpenseRepository.cs
+      DynamoExpenseMapper.cs
+      DynamoExpenseItem.cs
+    S3/
+      IReceiptService.cs
+      LocalReceiptService.cs
+      S3ReceiptService.cs
+      ReceiptKeyBuilder.cs
+    Clock.cs
 ```
 
 Responsabilites :
-- `Api/` : convertir HTTP en appels applicatifs et retourner des reponses propres.
-- `Domain/` : statuts, transitions, regles RBAC/ownership, erreurs metier.
-- `Infrastructure/` : details AWS Cognito claims, DynamoDB, S3, horloge.
-- `Contracts/` : DTOs REST serialises en JSON.
 
-## 4. Tests backend
+- `Api/` convertit les requetes API Gateway en appels applicatifs.
+- `Domain/` porte les regles de workflow, RBAC et ownership.
+- `Infrastructure/` isole Cognito, DynamoDB et S3.
+- `Contracts/` stabilise les payloads JSON.
 
-```text
-ExpenseTracker.Api.Tests/
-  Domain/
-    ExpenseStateMachineTests.cs
-    ExpensePolicyTests.cs
-  Infrastructure/
-    ReceiptKeyBuilderTests.cs
-  Api/
-    RequestRouterTests.cs
+```mermaid
+graph TD
+    API[Api]
+    DOMAIN[Domain]
+    INFRA[Infrastructure]
+    CONTRACTS[Contracts]
+
+    API --> DOMAIN
+    API --> INFRA
+    API --> CONTRACTS
 ```
 
-Priorite MVP :
-- tester les transitions ;
-- tester les autorisations ;
-- tester le routage des endpoints principaux ;
-- tester la construction des cles S3.
-
-## 5. Mobile MAUI propose
+## Tests backend
 
 ```text
-ExpenseTracker.Maui/
-  Views/
-    LoginPage.xaml
-    EmployeeExpensesPage.xaml
-    ExpenseEditPage.xaml
-    ExpenseDetailPage.xaml
-    FinanceQueuePage.xaml
-    FinanceReviewPage.xaml
-  ViewModels/
-    LoginViewModel.cs
-    EmployeeExpensesViewModel.cs
-    ExpenseEditViewModel.cs
-    ExpenseDetailViewModel.cs
-    FinanceQueueViewModel.cs
-    FinanceReviewViewModel.cs
-  Services/
-    AuthService.cs
-    ExpenseApiClient.cs
-    ReceiptUploadService.cs
-    SecureTokenStore.cs
+src/backend/ExpenseTracker.Api.Tests/
+  Api/
+  Domain/
+  Infrastructure/
+```
+
+Les tests couvrent le routeur, les handlers, la machine d'etats, les politiques RBAC, Cognito, DynamoDB et S3.
+
+## Client MAUI
+
+```text
+src/mobile/ExpenseTracker.Maui/
+  App.xaml
+  AppShell.xaml
+  MauiProgram.cs
   Models/
     ExpenseReportDto.cs
     ExpenseStatus.cs
+    MeDto.cs
+    PresignedUrlDto.cs
+  Services/
+    AppConfig.cs
+    AuthService.cs
+    ExpenseApiClient.cs
+    SecureTokenStore.cs
+  Views/
+    LoginPage.xaml
+    EmployeeExpensesPage.xaml
+    CreateExpensePage.xaml
+    ExpenseDetailPage.xaml
+    FinanceQueuePage.xaml
+  Resources/
+    Styles/
+      Colors.xaml
+      Styles.xaml
 ```
 
-## 6. Infrastructure AWS
+La navigation est basee sur `AppShell`. Les pages utilisent des services injectes et une UI MAUI native, sans framework UI externe.
 
-Pour limiter la complexite, un seul template CloudFormation ou SAM suffit.
+## Infrastructure
 
-Ressources MVP :
-- Cognito User Pool et groupes `Employee`, `FinanceManager` ;
-- API Gateway REST API avec Cognito Authorizer ;
-- Lambda API C# unique ;
-- DynamoDB `ExpenseReports` avec GSI1 et GSI2 ;
-- bucket S3 prive ;
-- role IAM Lambda ;
-- logs CloudWatch.
+Le template `infra/cloudformation/template.yaml` decrit :
 
-## 7. Ce qui n'est pas cree maintenant
+- Cognito User Pool, App Client et groupes `Employee` / `FinanceManager` ;
+- API Gateway REST avec Cognito Authorizer ;
+- Lambda API C#/.NET ;
+- table DynamoDB `ExpenseReports-${Environment}` avec `GSI1` et `GSI2` ;
+- bucket S3 prive pour les justificatifs ;
+- role IAM Lambda limite a DynamoDB, S3 et CloudWatch.
 
-- dossiers separes pour plusieurs Lambdas ;
-- microservices ou projets backend multiples ;
-- pipeline CI/CD complet ;
-- scripts de migration complexes ;
-- infrastructure multi-environnement avancee.
+Scripts :
 
-Ces elements peuvent etre ajoutes si le projet depasse le MVP, mais ils ne sont pas necessaires pour obtenir une demo professionnelle.
+- `deploy.ps1` : build et deploy SAM.
+- `seed-users.ps1` : creation de comptes de demo Cognito.
+- `invoke-samples.ps1` : smoke test de l'API live.
+
+## Elements volontairement absents
+
+- Pipeline CI/CD complet.
+- Plusieurs Lambdas par domaine.
+- ViewModels dedies : la version finale reste simple avec code-behind MAUI.
+- Tests automatises UI MAUI.
+- Historique d'audit detaille sous forme d'entites DynamoDB separees.

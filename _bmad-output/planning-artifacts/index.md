@@ -1,12 +1,12 @@
 ---
 project: expense-tracker-aws
 artifact: Index des artefacts de cadrage
-status: draft
+status: final
 ---
 
-# Artefacts de cadrage BMAD
+# Artefacts BMAD
 
-Ces documents cadrent le projet greenfield `expense-tracker-aws` avant implementation.
+Ces documents cadrent et documentent le projet `expense-tracker-aws` dans son etat final `v1.0.1`.
 
 Ordre de lecture recommande :
 
@@ -18,7 +18,12 @@ Ordre de lecture recommande :
 6. [Plan d'implementation technique](implementation-plan.md)
 7. [Strategie demo, tests, README et rapport](demo-tests-readme-report-strategy.md)
 
-Sources de reference :
+Documents finaux complementaires :
 
-- `docs/project-context.md` comme synthese prioritaire.
-- `docs/source/Project_ExpenseTracker_5ENTAPP.pdf` comme source officielle.
+- `README.md` : point d'entree evaluateur.
+- `docs/project-context.md` : synthese projet finale.
+- `docs/report/report.md` : rapport final Markdown.
+- `docs/final-documentation-audit.md` : audit documentaire final.
+- `docs/source/Project_ExpenseTracker_5ENTAPP.pdf` : sujet officiel.
+
+Note : certains artefacts BMAD conservent une logique de cadrage initial. Le README, le contexte projet et le rapport final font foi pour l'etat reel de la release.
