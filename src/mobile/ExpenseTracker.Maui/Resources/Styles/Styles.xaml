@@ -9,11 +9,11 @@
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="Shell.ForegroundColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="Shell.TitleColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="Shell.BackgroundColor" Value="{StaticResource NavigationBackground}" />
+        <Setter Property="Shell.ForegroundColor" Value="{StaticResource NavigationForeground}" />
+        <Setter Property="Shell.TitleColor" Value="{StaticResource NavigationForeground}" />
         <Setter Property="Shell.DisabledColor" Value="{StaticResource Gray300}" />
-        <Setter Property="Shell.UnselectedColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="Shell.UnselectedColor" Value="{StaticResource InfoBg}" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
         <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource Surface}" />
         <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource Primary}" />

@@ -5,6 +5,8 @@
 
     <Color x:Key="Primary">#2563EB</Color>
     <Color x:Key="PrimaryDark">#1D4ED8</Color>
+    <Color x:Key="NavigationBackground">#1D4ED8</Color>
+    <Color x:Key="NavigationForeground">#FFFFFF</Color>
     <Color x:Key="PageBackground">#F8FAFC</Color>
     <Color x:Key="Surface">#FFFFFF</Color>
     <Color x:Key="TextPrimary">#111827</Color>
@@ -34,6 +36,8 @@
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}" />
+    <SolidColorBrush x:Key="NavigationBackgroundBrush" Color="{StaticResource NavigationBackground}" />
+    <SolidColorBrush x:Key="NavigationForegroundBrush" Color="{StaticResource NavigationForeground}" />
     <SolidColorBrush x:Key="PageBackgroundBrush" Color="{StaticResource PageBackground}" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource Surface}" />
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}" />
